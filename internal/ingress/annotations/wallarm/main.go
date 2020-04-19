@@ -20,23 +20,25 @@ package wallarm
 import (
 	extensions "k8s.io/api/networking/v1beta1"
 
-	"k8s.io/ingress-nginx/internal/ingress/annotations/parser"
-	"k8s.io/ingress-nginx/internal/ingress/resolver"
 	"reflect"
 	"strings"
+
+	"k8s.io/ingress-nginx/internal/ingress/annotations/parser"
+	"k8s.io/ingress-nginx/internal/ingress/resolver"
 )
 
 type Config struct {
-	Mode string `json:"mode"`
-	ModeAllowOverride string `json:"modeAllowOverride"`
-	Fallback string `json:"fallback"`
-	Instance string `json:"instance"`
-	Acl string `json:"acl"`
-	BlockPage string `json:"blockPage"`
-	ParseResponse string `json:"parseResponse"`
-	ParseWebsocket string `json:"parseWebsocket"`
-	UnpackResponse string `json:"unpackResponse"`
-	ParserDisable []string `json:"parserDisable"`
+	Mode              string   `json:"mode"`
+	ModeAllowOverride string   `json:"modeAllowOverride"`
+	Fallback          string   `json:"fallback"`
+	Instance          string   `json:"instance"`
+	Acl               string   `json:"acl"`
+	BlockPage         string   `json:"blockPage"`
+	AclBlockPage      string   `json:"aclBlockPage"`
+	ParseResponse     string   `json:"parseResponse"`
+	ParseWebsocket    string   `json:"parseWebsocket"`
+	UnpackResponse    string   `json:"unpackResponse"`
+	ParserDisable     []string `json:"parserDisable"`
 }
 
 // Equal tests for equality between two Configuration types
@@ -75,6 +77,9 @@ func (l1 *Config) Equal(l2 *Config) bool {
 		return false
 	}
 	if !reflect.DeepEqual(l1.ParserDisable, l2.ParserDisable) {
+		return false
+	}
+	if l1.AclBlockPage != l2.AclBlockPage {
 		return false
 	}
 
@@ -119,6 +124,10 @@ func (a wallarm) Parse(ing *extensions.Ingress) (interface{}, error) {
 	if err != nil {
 		blockPage = defBackend.WallarmBlockPage
 	}
+	aclBlockPage, err := parser.GetStringAnnotation("wallarm-acl-block-page", ing)
+	if err != nil {
+		aclBlockPage = defBackend.WallarmAclBlockPage
+	}
 	parseResponse, err := parser.GetStringAnnotation("wallarm-parse-response", ing)
 	if err != nil {
 		parseResponse = defBackend.WallarmParseResponse
@@ -149,6 +158,7 @@ func (a wallarm) Parse(ing *extensions.Ingress) (interface{}, error) {
 		instance,
 		acl,
 		blockPage,
+		aclBlockPage,
 		parseResponse,
 		parseWebsocket,
 		unpackResponse,

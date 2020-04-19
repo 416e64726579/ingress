@@ -439,14 +439,14 @@ func (n *NGINXController) getConfiguration(ingresses []*ingress.Ingress) (sets.S
 	}
 
 	return hosts, servers, &ingress.Configuration{
-		Backends:              upstreams,
-		Servers:               servers,
-		TCPEndpoints:          n.getStreamServices(n.cfg.TCPConfigMapName, apiv1.ProtocolTCP),
-		UDPEndpoints:          n.getStreamServices(n.cfg.UDPConfigMapName, apiv1.ProtocolUDP),
-		PassthroughBackends:   passUpstreams,
-		WallarmTarantoolUpstream:   n.getWallarmTarantoolUpstream(),
-		BackendConfigChecksum: n.store.GetBackendConfiguration().Checksum,
-		ControllerPodsCount:   n.store.GetRunningControllerPodsCount(),
+		Backends:                 upstreams,
+		Servers:                  servers,
+		TCPEndpoints:             n.getStreamServices(n.cfg.TCPConfigMapName, apiv1.ProtocolTCP),
+		UDPEndpoints:             n.getStreamServices(n.cfg.UDPConfigMapName, apiv1.ProtocolUDP),
+		PassthroughBackends:      passUpstreams,
+		WallarmTarantoolUpstream: n.getWallarmTarantoolUpstream(),
+		BackendConfigChecksum:    n.store.GetBackendConfiguration().Checksum,
+		ControllerPodsCount:      n.store.GetRunningControllerPodsCount(),
 	}
 }
 
@@ -1003,6 +1003,7 @@ func (n *NGINXController) createServers(data []*ingress.Ingress,
 		Instance:          bdef.WallarmInstance,
 		Acl:               bdef.WallarmAcl,
 		BlockPage:         bdef.WallarmBlockPage,
+		AclBlockPage:      bdef.WallarmAclBlockPage,
 		ParseResponse:     bdef.WallarmParseResponse,
 		ParseWebsocket:    bdef.WallarmParseWebsocket,
 		UnpackResponse:    bdef.WallarmUnpackResponse,

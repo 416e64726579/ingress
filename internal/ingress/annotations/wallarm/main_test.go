@@ -25,10 +25,11 @@ import (
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
+	"reflect"
+
 	"k8s.io/ingress-nginx/internal/ingress/annotations/parser"
 	"k8s.io/ingress-nginx/internal/ingress/defaults"
 	"k8s.io/ingress-nginx/internal/ingress/resolver"
-	"reflect"
 )
 
 func buildIngress() *extensions.Ingress {
@@ -72,16 +73,17 @@ type mockBackend struct {
 
 func (m mockBackend) GetDefaultBackend() defaults.Backend {
 	return defaults.Backend{
-		WallarmMode: "off",
+		WallarmMode:              "off",
 		WallarmModeAllowOverride: "on",
-		WallarmFallback: "on",
-		WallarmInstance: "",
-		WallarmAcl: "off",
-		WallarmBlockPage: "",
-		WallarmParseResponse: "on",
-		WallarmParseWebsocket: "off",
-		WallarmUnpackResponse: "on",
-		WallarmParserDisable: []string{},
+		WallarmFallback:          "on",
+		WallarmInstance:          "",
+		WallarmAcl:               "off",
+		WallarmBlockPage:         "",
+		WallarmAclBlockPage:      "",
+		WallarmParseResponse:     "on",
+		WallarmParseWebsocket:    "off",
+		WallarmUnpackResponse:    "on",
+		WallarmParserDisable:     []string{},
 	}
 }
 
@@ -95,6 +97,7 @@ func TestProxy(t *testing.T) {
 	data[parser.GetAnnotationWithPrefix("wallarm-instance")] = "42"
 	data[parser.GetAnnotationWithPrefix("wallarm-acl")] = "on"
 	data[parser.GetAnnotationWithPrefix("wallarm-block-page")] = "block"
+	data[parser.GetAnnotationWithPrefix("wallarm-acl-block-page")] = "block"
 	data[parser.GetAnnotationWithPrefix("wallarm-parse-response")] = "off"
 	data[parser.GetAnnotationWithPrefix("wallarm-parse-websocket")] = "on"
 	data[parser.GetAnnotationWithPrefix("wallarm-unpack-response")] = "off"
@@ -126,6 +129,9 @@ func TestProxy(t *testing.T) {
 	}
 	if w.BlockPage != "block" {
 		t.Errorf("expected block as wallarm-block-page but returned %v", w.BlockPage)
+	}
+	if w.AclBlockPage != "block" {
+		t.Errorf("expected block as wallarm-block-page but returned %v", w.AclBlockPage)
 	}
 	if w.ParseResponse != "off" {
 		t.Errorf("expected off as wallarm-parse-response but returned %v", w.ParseResponse)
@@ -172,6 +178,9 @@ func TestProxyWithNoAnnotation(t *testing.T) {
 	}
 	if p.BlockPage != "" {
 		t.Errorf(`expected "" as wallarm-block-page but returned %v`, p.BlockPage)
+	}
+	if p.AclBlockPage != "" {
+		t.Errorf(`expected "" as wallarm-block-page but returned %v`, p.AclBlockPage)
 	}
 	if p.ParseResponse != "on" {
 		t.Errorf(`expected "on" as wallarm-parse-response but returned %v`, p.ParseResponse)

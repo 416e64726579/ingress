@@ -795,6 +795,7 @@ func NewDefault() Configuration {
 			WallarmInstance:          "",
 			WallarmAcl:               "off",
 			WallarmBlockPage:         "",
+			WallarmAclBlockPage:      "",
 			WallarmParseResponse:     "on",
 			WallarmParseWebsocket:    "off",
 			WallarmUnpackResponse:    "on",
@@ -835,7 +836,7 @@ func NewDefault() Configuration {
 		WallarmProcessTimeLimitBlock:     "attack",
 		WallarmRequestMemoryLimit:        "0",
 		WallarmWorkerRlimitVmem:          "1g",
-		GlobalExternalAuth:           defGlobalExternalAuth,
+		GlobalExternalAuth:               defGlobalExternalAuth,
 	}
 
 	if klog.V(5) {
